@@ -1,36 +1,38 @@
-/*const Grid = require('./Grid');
-const Item = require('./Item');*/
-
 class Inventory{
-  constructor(x,y){
+  constructor(x,y,tileSize){
     this.grid = new Grid(x,y);
-    this.width = 50 * x;
-    this.height = 50 * y;
+    this.tileSize = tileSize;
+    this.width = this.tileSize * x;
+    this.height = this.tileSize * y;
     this.hashu = [];
   }
 
   drawGrid(startX, startY, game, gameLayer){
 	  this.graphics = game.add.graphics(startX, startY);
 	  this.graphics.lineStyle(2, 0xFF0000, 1);
-	  for(let i = startX; i <= startX + this.width; i+= 50){ //width
-          this.graphics.moveTo(i, startY);
-          this.graphics.lineTo(i, startY + this.height);
+	  for(let i = 0; i <= 0 + this.width; i+= this.tileSize){ //width
+          this.graphics.moveTo(i, 0);
+          this.graphics.lineTo(i, 0 + this.height);
 	  }
-	  for(let i = startY; i <= startY + this.height; i+= 50){
-	    this.graphics.moveTo(startX, i);
-	    this.graphics.lineTo(startX + this.width, i);
+	  for(let i = 0; i <= 0 + this.height; i+= this.tileSize){
+	    this.graphics.moveTo(0, i);
+	    this.graphics.lineTo(0 + this.width, i);
       }
+      this.startX = startX;
+	  this.startY = startY;
   }
 
   dropItem(x,y, item){
     for(let i = y; i < y + item.height; i++){
       for(let j = x; j < x + item.width; j++){
+        if(i >= this.grid.height || j >= this.grid.width || i < 0 || j < 0){
+          return false;
+        }
         if(this.grid.grid[i][j] !== 0){ //if theres something here already
           return false;
         }
       }
     }
-
     //otherwise, if there is da required space
     if(!this.hashu[item.name]){
       //if our item doesnt exist in our hash yet add it in
@@ -44,6 +46,12 @@ class Inventory{
         this.grid.grid[i][j] = item;
       }
     }
+    //we gotta drop it in the graphic too now
+    item.xPos = this.startX + (this.tileSize * x);
+    item.yPos = this.startY + (this.tileSize * y);
+    const offX = Math.abs((this.tileSize * item.width) - item.sprite.width);
+    const offY = Math.abs((this.tileSize * item.height) - item.sprite.height);
+    item.setPos(this.startX + (this.tileSize * x) + offX/2, this.startY + (this.tileSize * y) + offY/2);
     return true;
   }
 
@@ -77,5 +85,3 @@ class Inventory{
     return item;
   }
 }
-
-//module.exports = Inventory;
